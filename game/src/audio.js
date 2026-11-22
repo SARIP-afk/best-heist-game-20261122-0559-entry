@@ -21,6 +21,7 @@ export const AudioFX = {
   },
   pickup() { this.blip(880, 0.09, 'sine', 0.06); setTimeout(() => this.blip(1320, 0.12, 'sine', 0.05), 70); },
   coin() { this.blip(1568, 0.05, 'triangle', 0.04); },
+  laser() { this.blip(180, 0.22, 'sawtooth', 0.07); setTimeout(() => this.blip(140, 0.2, 'sawtooth', 0.06), 90); },
   alarm() { this.blip(220, 0.18, 'square', 0.04); },
   caught() { this.blip(110, 0.4, 'sawtooth', 0.06); setTimeout(() => this.blip(82, 0.5, 'sawtooth', 0.06), 180); },
   win() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => this.blip(f, 0.16, 'sine', 0.06), i * 110)); },

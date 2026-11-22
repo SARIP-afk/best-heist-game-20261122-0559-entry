@@ -8,6 +8,7 @@ canvas.width = CONFIG.canvasW;
 canvas.height = CONFIG.canvasH;
 const ctx = canvas.getContext('2d');
 const world = new World();
+window.__vv = world; // debug/test handle: lets headless tests stage states + screenshots
 Input.init(canvas);
 let last = performance.now();
 function frame(now) {
