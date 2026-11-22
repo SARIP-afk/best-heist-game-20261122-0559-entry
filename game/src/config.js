@@ -1,0 +1,65 @@
+// VELVET VAULT — shared tuning. One job: every number the game uses.
+export const CONFIG = {
+  canvasW: 1280,
+  canvasH: 720,
+  // thief
+  thiefRadius: 12,
+  thiefSpeed: 190,
+  shoesSpeed: 285,
+  shoesDuration: 8,
+  // guards
+  guardRadius: 13,
+  guardPatrolSpeed: 70,
+  guardChaseSpeed: 135,
+  guardVisionRange: 230,
+  guardVisionHalfAngle: 0.61, // ~35 deg each side
+  guardDetectRate: 1.4, // detection 0..1 per second while seen
+  guardForgetRate: 0.5,
+  guardInvestigateTime: 3,
+  // cameras
+  cameraRange: 260,
+  cameraHalfAngle: 0.52,
+  cameraSweepSpeed: 0.5,
+  cameraSweepArc: 0.9,
+  cameraDetectRate: 1.8,
+  empDuration: 6,
+  // alarm 0..100
+  alarmGuardRate: 18,
+  alarmCameraRate: 25,
+  alarmDecay: 6,
+  alarmCaught: 100,
+  // tools
+  coinsStart: 5,
+  coinRadius: 140,
+  smokeStart: 2,
+  smokeRadius: 90,
+  smokeDuration: 4,
+  empStart: 2,
+  shoesStart: 1,
+  // colours
+  colors: {
+    floor: '#1c1a26',
+    floorTile: '#221f30',
+    wall: '#3a3450',
+    wallEdge: '#57507a',
+    carpet: '#3d1f2b',
+    thief: '#ffd166',
+    thiefRing: '#fff3c4',
+    guard: '#ef476f',
+    guardCone: 'rgba(239,71,111,0.20)',
+    guardConeAlert: 'rgba(239,71,111,0.38)',
+    camera: '#06d6a0',
+    cameraCone: 'rgba(6,214,160,0.16)',
+    loot: '#f4d35e',
+    lootGlow: 'rgba(244,211,94,0.35)',
+    exit: '#06d6a0',
+    exitInactive: '#4a5568',
+    smoke: 'rgba(200,200,210,0.45)',
+    coin: '#e9c46a',
+    hudBg: 'rgba(10,9,16,0.82)',
+    hudText: '#f2f0f7',
+    alarmLow: '#06d6a0',
+    alarmMid: '#ffd166',
+    alarmHigh: '#ef476f',
+  },
+};
