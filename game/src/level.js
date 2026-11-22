@@ -1,6 +1,6 @@
 // VELVET VAULT — the museum floor. One job: walls, loot, patrols, cameras, lasers, decor.
 // v2: four galleries (West / Central Hall / East / North Vault alcove), 5 guards,
-// 8 loot ($1,680), 3 cameras, 3 timed laser grids, framed paintings, velvet ropes.
+// 8 loot ($1,680), 5 cameras, 3 timed laser grids, framed paintings, velvet ropes.
 export const LEVEL = {
   // border + interior cover. {x, y, w, h} in pixels.
   walls: [
@@ -44,10 +44,15 @@ export const LEVEL = {
     { name: 'Felix', kind: 'roamer', patrolSpeed: 95, chaseSpeed: 152, visionRange: 200, visionHalfAngle: 0.5, waypoints: [[300, 350], [640, 350], [980, 350]] },
   ],
   // cameras: mounted on a wall, sweeping around baseAngle.
+  // Cam D (south-west, tilted slightly west) watches the Emerald + thief
+  // entry corner; Cam E (south-east, tilted toward the door) watches the
+  // Topaz + GETAWAY exit. Both sit on the bottom wall like Cam A on top.
   cameras: [
     { name: 'Cam A', x: 640, y: 24, baseAngle: Math.PI / 2 },
     { name: 'Cam B', x: 1256, y: 360, baseAngle: Math.PI },
     { name: 'Cam C', x: 24, y: 360, baseAngle: 0 },
+    { name: 'Cam D', x: 180, y: 696, baseAngle: -Math.PI / 2 - 0.25 },
+    { name: 'Cam E', x: 1120, y: 696, baseAngle: -Math.PI / 2 + 0.55 },
   ],
   // lasers: timed beams. {x1,y1,x2,y2, period s, onTime s, phase s}
   lasers: [
@@ -61,6 +66,8 @@ export const LEVEL = {
       { x: 560, y: 20, w: 160, h: 660 }, // central runner
       { x: 60, y: 330, w: 320, h: 80 }, // west runner
       { x: 900, y: 330, w: 320, h: 80 }, // east runner
+      { x: 40, y: 560, w: 120, h: 110 }, // south-west corner rug (entry mat)
+      { x: 1120, y: 560, w: 120, h: 110 }, // south-east rug: red carpet to the GETAWAY door
     ],
     paintings: [
       { x: 150, y: 52, w: 96, h: 66, art: 'landscape' },
@@ -74,6 +81,12 @@ export const LEVEL = {
     cases: [ // glass display pedestals with a tiny gem inside
       { x: 70, y: 300 },
       { x: 1210, y: 300 },
+      { x: 100, y: 545 }, // south-west corner case
+      { x: 1180, y: 545 }, // south-east corner case
+    ],
+    plants: [ // potted palms in the south corners (visual only)
+      { x: 360, y: 655 },
+      { x: 920, y: 655 },
     ],
     ropes: [ // velvet rope in front of the big pieces (posts + sagging rope)
       { x1: 596, y1: 344, x2: 684, y2: 344 },
@@ -86,6 +99,8 @@ export const LEVEL = {
       { x: 980, y: 24 },
       { x: 24, y: 360 },
       { x: 1256, y: 360 },
+      { x: 80, y: 696 }, // south-west corner light
+      { x: 1200, y: 696 }, // south-east corner light
     ],
   },
   exit: { x: 1180, y: 640, w: 64, h: 48, label: 'GETAWAY' },

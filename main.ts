@@ -1,6 +1,6 @@
 // VELVET VAULT — a museum heist game (Node 22, standard library only).
-// You are the thief. Cross the gallery, dodge three patrolling guards and
-// two sweeping cameras, pocket five treasures, and slip out the getaway
+// You are the thief. Cross the gallery, dodge five patrolling guards and
+// five sweeping cameras, pocket eight treasures worth $1,680, and slip out the getaway
 // door before the alarm meter hits 100. Coins distract guards, smoke
 // blinds them, an EMP kills the cameras, silent shoes buy speed — every
 // tool costs a use, so read the cones before you move.

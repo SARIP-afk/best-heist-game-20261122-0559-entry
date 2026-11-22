@@ -138,7 +138,7 @@ function buildStaticLayer() {
     ctx.fillRect(cp.x + cp.w / 2 - 6, cp.y, 12, cp.h);
   }
   // --- gold floor medallions (inlaid marble circles, gallery centres) ---
-  for (const [mx, my] of [[230, 360], [1070, 360], [640, 480]]) {
+  for (const [mx, my] of [[230, 360], [1070, 360], [640, 480], [300, 590], [980, 590]]) {
     ctx.strokeStyle = 'rgba(201,162,39,0.55)';
     ctx.lineWidth = 3;
     ctx.beginPath(); ctx.arc(mx, my, 46, 0, Math.PI * 2); ctx.stroke();
@@ -243,6 +243,34 @@ function buildStaticLayer() {
     ctx.beginPath();
     ctx.moveTo(cs.x, cs.y - 6); ctx.lineTo(cs.x + 7, cs.y + 2); ctx.lineTo(cs.x, cs.y + 8); ctx.lineTo(cs.x - 7, cs.y + 2);
     ctx.closePath(); ctx.fill();
+  }
+  // --- potted palms (terracotta pot + layered fronds) ---
+  for (const pl of LEVEL.decor.plants) {
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath(); ctx.ellipse(pl.x, pl.y + 14, 20, 6, 0, 0, Math.PI * 2); ctx.fill();
+    // fronds behind the pot rim
+    const fronds = [[-14, -26, -0.5], [-6, -34, -0.15], [4, -36, 0.1], [13, -28, 0.45], [0, -30, 0]];
+    for (const [ox, oy, rot] of fronds) {
+      ctx.save();
+      ctx.translate(pl.x, pl.y + 6);
+      ctx.rotate(rot);
+      ctx.fillStyle = '#1d6b3a';
+      ctx.beginPath(); ctx.ellipse(ox, oy, 6, 16, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#2fd67a';
+      ctx.beginPath(); ctx.ellipse(ox - 1, oy - 2, 3.5, 12, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillStyle = '#8a4a22';
+    ctx.beginPath();
+    ctx.moveTo(pl.x - 14, pl.y - 2); ctx.lineTo(pl.x + 14, pl.y - 2);
+    ctx.lineTo(pl.x + 10, pl.y + 14); ctx.lineTo(pl.x - 10, pl.y + 14);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#a85a2a';
+    ctx.fillRect(pl.x - 15, pl.y - 6, 30, 6);
+    ctx.strokeStyle = C.gold; ctx.lineWidth = 1.5;
+    ctx.strokeRect(pl.x - 15, pl.y - 6, 30, 6);
+    ctx.fillStyle = '#2a1a0e';
+    ctx.beginPath(); ctx.ellipse(pl.x, pl.y - 4, 12, 3, 0, 0, Math.PI * 2); ctx.fill();
   }
   // --- velvet ropes: brass posts + sagging crimson rope ---
   for (const r of LEVEL.decor.ropes) {
@@ -473,38 +501,64 @@ function drawGuard(ctx, g, t) {
 }
 
 function drawThief(ctx, th, t) {
+  // VISUAL ONLY: the drawn hero is 1.5x the collision radius (th.r stays 12,
+  // speed and mechanics untouched) so the thief reads clearly in thumbnails.
+  const vr = th.r * 1.5;
+  // warm hero halo so the thief pops out of the dark floor
+  const halo = ctx.createRadialGradient(th.x, th.y, 4, th.x, th.y, vr + 26);
+  halo.addColorStop(0, 'rgba(255,200,120,0.30)');
+  halo.addColorStop(0.55, 'rgba(150,110,255,0.14)');
+  halo.addColorStop(1, 'rgba(150,110,255,0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(th.x, th.y, vr + 26, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.beginPath(); ctx.ellipse(th.x, th.y + th.r + 3, th.r + 2, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(th.x, th.y + vr + 3, vr + 2, 5, 0, 0, Math.PI * 2); ctx.fill();
   const fx = Math.cos(th.facing), fy = Math.sin(th.facing);
   // cloak (deep violet so the hero pops against the dark floor, like Kumala's hero)
-  ctx.beginPath(); ctx.arc(th.x, th.y, th.r, 0, Math.PI * 2);
+  ctx.beginPath(); ctx.arc(th.x, th.y, vr, 0, Math.PI * 2);
   ctx.fillStyle = C.thief; ctx.fill();
-  ctx.strokeStyle = C.thiefTrim; ctx.lineWidth = 2.5; ctx.stroke();
-  // warm rim light on the cloak edge
-  ctx.strokeStyle = 'rgba(255,200,120,0.55)';
+  ctx.strokeStyle = C.thiefTrim; ctx.lineWidth = 3; ctx.stroke();
+  // gold hero ring — the thumbnail-readable outline
+  ctx.strokeStyle = 'rgba(255,233,168,0.9)';
   ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.arc(th.x, th.y, th.r - 1, th.facing - 2.2, th.facing - 0.6); ctx.stroke();
+  ctx.beginPath(); ctx.arc(th.x, th.y, vr + 3, 0, Math.PI * 2); ctx.stroke();
+  // strong warm rim light on the cloak edge (two arcs: lit side + faint far side)
+  ctx.strokeStyle = 'rgba(255,200,120,0.85)';
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(th.x, th.y, vr - 1, th.facing - 2.2, th.facing - 0.6); ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,200,120,0.35)';
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(th.x, th.y, vr - 1, th.facing + 0.9, th.facing + 2.4); ctx.stroke();
   // hood point toward facing
   ctx.fillStyle = '#171222';
   ctx.beginPath();
-  ctx.moveTo(th.x + fx * (th.r + 7), th.y + fy * (th.r + 7));
-  ctx.lineTo(th.x + Math.cos(th.facing + 2.5) * th.r * 0.8, th.y + Math.sin(th.facing + 2.5) * th.r * 0.8);
-  ctx.lineTo(th.x + Math.cos(th.facing - 2.5) * th.r * 0.8, th.y + Math.sin(th.facing - 2.5) * th.r * 0.8);
+  ctx.moveTo(th.x + fx * (vr + 10), th.y + fy * (vr + 10));
+  ctx.lineTo(th.x + Math.cos(th.facing + 2.5) * vr * 0.8, th.y + Math.sin(th.facing + 2.5) * vr * 0.8);
+  ctx.lineTo(th.x + Math.cos(th.facing - 2.5) * vr * 0.8, th.y + Math.sin(th.facing - 2.5) * vr * 0.8);
   ctx.closePath(); ctx.fill();
-  // face + eye glints
+  // face + eye glints (bigger, so the eyes read at thumbnail size)
   ctx.fillStyle = '#0d0a14';
-  ctx.beginPath(); ctx.arc(th.x + fx * 3, th.y + fy * 3, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(th.x + fx * 4, th.y + fy * 4, 8.5, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#ffe9a8';
-  ctx.beginPath(); ctx.arc(th.x + fx * 4 + Math.cos(th.facing + 1.57) * 2.5, th.y + fy * 4 + Math.sin(th.facing + 1.57) * 2.5, 1.6, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(th.x + fx * 4 - Math.cos(th.facing + 1.57) * 2.5, th.y + fy * 4 - Math.sin(th.facing + 1.57) * 2.5, 1.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(th.x + fx * 5 + Math.cos(th.facing + 1.57) * 3.5, th.y + fy * 5 + Math.sin(th.facing + 1.57) * 3.5, 2.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(th.x + fx * 5 - Math.cos(th.facing + 1.57) * 3.5, th.y + fy * 5 - Math.sin(th.facing + 1.57) * 3.5, 2.2, 0, Math.PI * 2); ctx.fill();
   // gold clasp
   ctx.fillStyle = C.goldBright;
-  ctx.beginPath(); ctx.arc(th.x - fx * (th.r - 2), th.y - fy * (th.r - 2), 2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(th.x - fx * (vr - 2), th.y - fy * (vr - 2), 3, 0, Math.PI * 2); ctx.fill();
+  // floating gold hero marker above the head — the "find the thief" beacon
+  const my = th.y - vr - 12 + Math.sin(t * 3) * 2;
+  ctx.fillStyle = '#f4d35e';
+  ctx.beginPath();
+  ctx.moveTo(th.x, my - 5); ctx.lineTo(th.x + 5, my); ctx.lineTo(th.x, my + 5); ctx.lineTo(th.x - 5, my);
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = 'rgba(255,233,168,0.9)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
   // silent shoes ring
   if (th.shoesTimer > 0) {
     ctx.strokeStyle = `rgba(244,211,94,${0.5 + 0.4 * Math.sin(t * 6)})`;
     ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(th.x, th.y, th.r + 5, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(th.x, th.y, vr + 7, 0, Math.PI * 2); ctx.stroke();
   }
 }
 
@@ -529,7 +583,7 @@ function applyLighting(ctx, world) {
     l.beginPath(); l.arc(x, y, r, 0, Math.PI * 2); l.fill();
   };
   const th = world.thief;
-  hole(th.x, th.y, 250, 1); // thief lantern light
+  hole(th.x, th.y, 280, 1); // thief lantern light (hero pool, wider than before)
   for (const lt of world.loot) if (!lt.taken) hole(lt.x, lt.y, 95, 0.9);
   const e = LEVEL.exit;
   hole(e.x + e.w / 2, e.y + e.h / 2, world.allLootTaken ? 140 : 90, world.allLootTaken ? 0.95 : 0.5);
@@ -545,7 +599,7 @@ function applyLighting(ctx, world) {
     l.fillStyle = g;
     l.beginPath(); l.arc(x, y, r, 0, Math.PI * 2); l.fill();
   };
-  warm(th.x, th.y, 260, 0.16);
+  warm(th.x, th.y, 290, 0.18);
   for (const s of LEVEL.decor.sconces) warm(s.x, s.y, 150, 0.18);
   for (const lt of world.loot) if (!lt.taken) warm(lt.x, lt.y, 110, 0.1);
   ctx.drawImage(lightCanvas, 0, 0);
@@ -800,7 +854,7 @@ export function render(ctx, world) {
     });
     ctx.fillStyle = C.goldBright;
     ctx.font = 'bold 15px system-ui, sans-serif';
-    ctx.fillText('8 TREASURES  •  $1,680  •  5 GUARDS  •  3 CAMERAS  •  LASER GRIDS', W / 2, 512);
+    ctx.fillText('8 TREASURES  •  $1,680  •  5 GUARDS  •  5 CAMERAS  •  LASER GRIDS', W / 2, 512);
     ctx.fillStyle = C.hudText;
     ctx.font = '16px system-ui, sans-serif';
     ctx.fillText('WASD / arrows — move    •    Click — throw a coin to distract a guard', W / 2, 548);
