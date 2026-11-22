@@ -137,6 +137,36 @@ function buildStaticLayer() {
     ctx.fillStyle = 'rgba(255,255,255,0.03)';
     ctx.fillRect(cp.x + cp.w / 2 - 6, cp.y, 12, cp.h);
   }
+  // --- gold floor medallions (inlaid marble circles, gallery centres) ---
+  for (const [mx, my] of [[230, 360], [1070, 360], [640, 480]]) {
+    ctx.strokeStyle = 'rgba(201,162,39,0.55)';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.arc(mx, my, 46, 0, Math.PI * 2); ctx.stroke();
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(mx, my, 36, 0, Math.PI * 2); ctx.stroke();
+    ctx.save();
+    ctx.translate(mx, my);
+    ctx.rotate(Math.PI / 4);
+    ctx.strokeStyle = 'rgba(201,162,39,0.4)';
+    ctx.strokeRect(-18, -18, 36, 36);
+    ctx.restore();
+    ctx.fillStyle = 'rgba(201,162,39,0.5)';
+    ctx.beginPath(); ctx.arc(mx, my, 4, 0, Math.PI * 2); ctx.fill();
+  }
+  // --- benches against the south wall (wood + brass) ---
+  for (const [bx, by] of [[240, 668], [1040, 668]]) {
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath(); ctx.ellipse(bx, by + 12, 52, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#332216';
+    ctx.fillRect(bx - 48, by - 10, 96, 20);
+    ctx.fillStyle = C.gold;
+    ctx.fillRect(bx - 48, by - 10, 96, 3);
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 1;
+    for (const lx of [-40, 0, 40]) {
+      ctx.beginPath(); ctx.moveTo(bx + lx, by - 7); ctx.lineTo(bx + lx, by + 7); ctx.stroke();
+    }
+  }
   // --- loot pedestals (gold ring + shadow) ---
   for (const l of LEVEL.loot) {
     ctx.fillStyle = 'rgba(0,0,0,0.4)';
@@ -446,10 +476,14 @@ function drawThief(ctx, th, t) {
   ctx.fillStyle = 'rgba(0,0,0,0.5)';
   ctx.beginPath(); ctx.ellipse(th.x, th.y + th.r + 3, th.r + 2, 5, 0, 0, Math.PI * 2); ctx.fill();
   const fx = Math.cos(th.facing), fy = Math.sin(th.facing);
-  // cloak
+  // cloak (deep violet so the hero pops against the dark floor, like Kumala's hero)
   ctx.beginPath(); ctx.arc(th.x, th.y, th.r, 0, Math.PI * 2);
   ctx.fillStyle = C.thief; ctx.fill();
-  ctx.strokeStyle = C.thiefTrim; ctx.lineWidth = 2; ctx.stroke();
+  ctx.strokeStyle = C.thiefTrim; ctx.lineWidth = 2.5; ctx.stroke();
+  // warm rim light on the cloak edge
+  ctx.strokeStyle = 'rgba(255,200,120,0.55)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(th.x, th.y, th.r - 1, th.facing - 2.2, th.facing - 0.6); ctx.stroke();
   // hood point toward facing
   ctx.fillStyle = '#171222';
   ctx.beginPath();
@@ -461,8 +495,8 @@ function drawThief(ctx, th, t) {
   ctx.fillStyle = '#0d0a14';
   ctx.beginPath(); ctx.arc(th.x + fx * 3, th.y + fy * 3, 6, 0, Math.PI * 2); ctx.fill();
   ctx.fillStyle = '#ffe9a8';
-  ctx.beginPath(); ctx.arc(th.x + fx * 4 + Math.cos(th.facing + 1.57) * 2.5, th.y + fy * 4 + Math.sin(th.facing + 1.57) * 2.5, 1.2, 0, Math.PI * 2); ctx.fill();
-  ctx.beginPath(); ctx.arc(th.x + fx * 4 - Math.cos(th.facing + 1.57) * 2.5, th.y + fy * 4 - Math.sin(th.facing + 1.57) * 2.5, 1.2, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(th.x + fx * 4 + Math.cos(th.facing + 1.57) * 2.5, th.y + fy * 4 + Math.sin(th.facing + 1.57) * 2.5, 1.6, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(th.x + fx * 4 - Math.cos(th.facing + 1.57) * 2.5, th.y + fy * 4 - Math.sin(th.facing + 1.57) * 2.5, 1.6, 0, Math.PI * 2); ctx.fill();
   // gold clasp
   ctx.fillStyle = C.goldBright;
   ctx.beginPath(); ctx.arc(th.x - fx * (th.r - 2), th.y - fy * (th.r - 2), 2, 0, Math.PI * 2); ctx.fill();
@@ -502,6 +536,18 @@ function applyLighting(ctx, world) {
   for (const s of LEVEL.decor.sconces) hole(s.x, s.y, 130, 0.55);
   for (const g of world.guards) hole(g.x, g.y, 70, 0.4);
   for (const c of world.cameras) hole(c.x, c.y, 55, 0.35);
+  // Kumala warmth: golden-hour tint inside every lit pool (warm, not cold dark)
+  l.globalCompositeOperation = 'source-over';
+  const warm = (x, y, r, a) => {
+    const g = l.createRadialGradient(x, y, 4, x, y, r);
+    g.addColorStop(0, `rgba(255,180,90,${a})`);
+    g.addColorStop(1, 'rgba(255,180,90,0)');
+    l.fillStyle = g;
+    l.beginPath(); l.arc(x, y, r, 0, Math.PI * 2); l.fill();
+  };
+  warm(th.x, th.y, 260, 0.16);
+  for (const s of LEVEL.decor.sconces) warm(s.x, s.y, 150, 0.18);
+  for (const lt of world.loot) if (!lt.taken) warm(lt.x, lt.y, 110, 0.1);
   ctx.drawImage(lightCanvas, 0, 0);
 }
 
